@@ -1,0 +1,46 @@
+version: "3.7"
+x-common-env: &common-env
+  # SALT_ARCH_RELEASE will not accept value as latest, enter the version no
+  # SALT_REPO : values can be 'yum' (python2) or 'py3' (python3 - Runs with bootstrap-salt.sh)
+  SALT_ARCH_RELEASE: 3000.3
+  SALT_REPO: yum
+x-common-var: &common-var
+  entrypoint: bash -c "/opt/salt-setup.sh"
+  image: centos/base:7
+
+services:
+  master:
+    environment:
+      <<: *common-env
+      SALT_ROLE: salt-master
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+          SCRIPT_NAME: master-setup
+    container_name: salt-master
+    # command: bash -c "sleep 30 && /opt/master-setup.sh"
+    <<: *common-var
+    privileged: true
+    # Add volume to mount your salt files availble in host
+    # volumes:
+    #     - ./srv:/srv:rw
+    networks:
+      - salt-cluster
+    stdin_open: true
+    tty: true
+  minion:
+    environment:
+        <<: *common-env
+        SALT_ROLE: salt-minion
+    <<: *common-var
+    privileged: true
+    depends_on:
+      - master
+    networks:
+      - salt-cluster
+    stdin_open: true
+    tty: true
+networks:
+  salt-cluster:
+    driver: "bridge"
