@@ -1,0 +1,37 @@
+version: "3.7"
+
+x-common-var: &common-var
+  image: alok183/ubuntupy3:1.0
+
+services:
+  server:    
+    container_name: ansible-server
+    <<: *common-var
+    entrypoint: bash -c "chmod +x /opt/ansible-installation.sh && /opt/ansible-installation.sh"
+    privileged: true
+    # depends_on:
+    #   - client
+    # networks:
+    #   - ansible-cluster
+    stdin_open: true
+    tty: true
+    volumes:
+      - "./ansible-installation.sh:/opt/ansible-installation.sh"
+      # - "/home/rndadmin/dockerPrac/ansible:/root/.ssh/"
+    # ports:
+    #   - "8130:22"
+  # client:
+  #   container_name: ansible-client
+  #   <<: *common-var
+  #   privileged: true
+  #   networks:
+  #     - ansible-cluster
+  #   stdin_open: true
+  #   tty: true
+  #   volumes:
+  #     - "/home/rndadmin/dockerPrac/ansible/id_rsa.pub:/root/.ssh/authorized_keys"
+  #   ports:
+  #     - "8129:22"
+# networks:
+#   ansible-cluster:
+#     driver: "bridge"
